@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 /*
 c := make(chan int)
@@ -15,6 +18,29 @@ x := <-c // kanaldan veri al ve x'e ata
 }*/
 
 func main() {
+	ch1 := make(chan string)
+	ch2 := make(chan string)
+
+	go func() {
+		time.Sleep(1 * time.Second)
+		ch1 <- "message from ch1"
+	}()
+	go func() {
+		time.Sleep(2 * time.Second)
+		ch2 <- "message from ch2"
+	}()
+
+	for i := 0; i < 2; i++ {
+		select {
+		case msg1 := <-ch1:
+			fmt.Println(msg1)
+		case msg2 := <-ch2:
+			fmt.Println(msg2)
+
+		}
+
+	}
+
 	/*x := make(chan int)
 	go worker(x)
 	x <- 10
@@ -42,12 +68,12 @@ func main() {
 	// eğer adresler farklı olsaydı bellek yönetimini zorlaştırır ve performansı ciddi şekilde düşürürdü
 	// go çalışa zamanı,kanal adreslerini sabit tutarak bu tür bellek sorunlarını önler
 	*/
-	done := make(chan bool)
+	/*done := make(chan bool)
 	go func() {
 		fmt.Println("Goroutine World")
 		done <- true
 	}()
 	<-done // done kanalından bir değer gelene kadar bekler
-	fmt.Println("main goroutine  continues")
+	fmt.Println("main goroutine  continues")*/
 
 }
