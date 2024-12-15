@@ -10,8 +10,8 @@ func ping(pings chan<- string, msg string) {
 	pings <- msg
 }
 func pong(pings <-chan string, pongs chan<- string) {
-	msg := <-pings // bir kanaldan veri alınır
-	pongs <- msg   // diger kanala veri gönderilir
+	msg := <-pings // bir kanaldan veri alınır msag tarafıdnan .. pings bosalır .
+	pongs <- msg   // diger kanala veri gönderilir pongs'a veri aktarılır.
 }
 func main() {
 	pings := make(chan string, 1)
