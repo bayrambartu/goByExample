@@ -4,6 +4,26 @@ import (
 	"fmt"
 	"sync"
 )
+/*
+func main() {
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go helloWorld(&wg)
+	go merhabaWorld(&wg)
+	wg.Wait()
+
+	// time.Sleep(time.Second)
+}
+func helloWorld(wg *sync.WaitGroup) {
+	fmt.Println("Hello")
+	defer wg.Done()
+
+}
+func merhabaWorld(wg *sync.WaitGroup) {
+	fmt.Println("merhaba")
+	defer wg.Done()
+
+} */
 
 /*
 	func worker(id int) {
@@ -46,22 +66,22 @@ func main() {
 
 	for err := range errors {
 		fmt.Println("Error:", err)
-	}
-	/*var wg sync.WaitGroup
-	results := make(chan string, 5)
-	for i := 1; i <= 5; i++ {
-		wg.Add(1)
-		go worker(i, results, &wg)
-	}
-	wg.Wait()
-	close(results)
+	} 
+/*var wg sync.WaitGroup
+results := make(chan string, 5)
+for i := 1; i <= 5; i++ {
+	wg.Add(1)
+	go worker(i, results, &wg)
+}
+wg.Wait()
+close(results)
 
-	// close(result) olmadan range işlemi yapılamaz.
-	for result := range results {
-		fmt.Println(result)
-	} */
+// close(result) olmadan range işlemi yapılamaz.
+for result := range results {
+	fmt.Println(result)
+} */
 
-	/*var wg sync.WaitGroup
+/*var wg sync.WaitGroup
 
 	for i := 1; i <= 5; i++ {
 		wg.Add(1)
@@ -73,5 +93,5 @@ func main() {
 	}
 
 	wg.Wait()
-	*/
-}
+
+}*/
