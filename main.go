@@ -56,6 +56,8 @@ func main() {
 
 	}
 	wg.Wait()
-	fmt.Println(ops)*/
+	fmt.Println(ops)
+
+	*/
 
 }
