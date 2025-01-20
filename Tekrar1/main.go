@@ -125,47 +125,95 @@ func main() {
 			}
 		}
 		fmt.Println("DONE") */
+	/*
+		ch1 := make(chan string)
+		ch2 := make(chan string)
 
+		go func() {
+			for i := 1; i <= 5; i++ {
+				ch1 <- fmt.Sprintf("Kanal 1: Mesaj %d", i)
+				time.Sleep(500 * time.Millisecond) // Daha hızlı gönderim kanal 2 1 kere çalışırken bu 2 kere calsırı gibi düşünebilrisin.
+			}
+			close(ch1)
+		}()
+
+		go func() {
+			for i := 1; i <= 5; i++ {
+				ch2 <- fmt.Sprintf("Kanal 2: Mesaj %d", i)
+				time.Sleep(1 * time.Second)
+			}
+			close(ch2)
+		}()
+
+		for {
+			select {
+			case msg1, ok := <-ch1:
+				if ok {
+					fmt.Println(msg1)
+				} else {
+					ch1 = nil
+				}
+			case msg2, ok := <-ch2:
+				if ok {
+					fmt.Println(msg2)
+				} else {
+					ch2 = nil
+				}
+			}
+
+			if ch1 == nil && ch2 == nil {
+				break
+			}
+		}
+
+		fmt.Println("DONE")*/
+
+	/*ch := make(chan string)
+
+	go func() {
+		time.Sleep(time.Millisecond * 1)
+		ch <- "Merhaba veri geldi"
+
+	}()
+	// zaman aşımı ve kanal dinleme
+	select {
+	case msg := <-ch:
+		fmt.Println("Kanaldan alınan veri:", msg)
+	case <-time.After(1 * time.Second):
+		fmt.Println("Zaman aşımı! veri alınamadı.")
+	}
+	// defaul ile
+	select {
+	case msg := <-ch:
+		fmt.Println("Kanaldan alınan veri:", msg)
+	default:
+		fmt.Println("Kanal hazır değil....")
+	}*/
 	ch1 := make(chan string)
 	ch2 := make(chan string)
 
 	go func() {
-		for i := 1; i <= 5; i++ {
-			ch1 <- fmt.Sprintf("Kanal 1: Mesaj %d", i)
-			time.Sleep(500 * time.Millisecond) // Daha hızlı gönderim
-		}
-		close(ch1)
+		time.Sleep(2 * time.Second)
+		ch1 <- "kanal1 den veri geldi"
+	}()
+	go func() {
+		time.Sleep(1 * time.Second)
+		ch2 <- "kanal2'den veri geldi"
 	}()
 
-	go func() {
-		for i := 1; i <= 3; i++ {
-			ch2 <- fmt.Sprintf("Kanal 2: Mesaj %d", i)
-			time.Sleep(1 * time.Second)
-		}
-		close(ch2)
-	}()
+	timeout := time.After(3 * time.Second)
 
 	for {
 		select {
-		case msg1, ok := <-ch1:
-			if ok {
-				fmt.Println(msg1)
-			} else {
-				ch1 = nil
-			}
-		case msg2, ok := <-ch2:
-			if ok {
-				fmt.Println(msg2)
-			} else {
-				ch2 = nil
-			}
+		case msg := <-ch1:
+			fmt.Println(msg)
+
+		case msg := <-ch2:
+			fmt.Println(msg)
+		case <-timeout:
+			fmt.Println("timeout!!!!")
+			return // amacı sonsuz döngüye girmeden bitirmek döngüyü.
 		}
 
-		if ch1 == nil && ch2 == nil {
-			break
-		}
 	}
-
-	fmt.Println("DONE")
-
 }
