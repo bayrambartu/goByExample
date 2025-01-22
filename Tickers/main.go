@@ -70,7 +70,7 @@ func main() {
 		}*/
 
 	// ZAMANLAYICI VE KANALLARI BİRLEŞTİRME
-	ch := make(chan string)
+	/*ch := make(chan string)
 	go func() {
 		time.Sleep(2 * time.Second)
 		ch <- "kanal uzerinden veri gonderildi"
@@ -81,6 +81,49 @@ func main() {
 		fmt.Println(msg)
 	case <-timeout:
 		fmt.Println("Zaman Asimi")
-	}
+	}*/
 
+	ch1 := make(chan string)
+	ch2 := make(chan string)
+	go func() {
+		time.Sleep(time.Second * 2)
+		ch1 <- "kanal 1 gorev tamamlandi!"
+	}()
+	go func() {
+		time.Sleep(time.Second * 6)
+		ch2 <- "kanal 2 gorev tamamlandi!"
+	}()
+
+	// kanal basina bir zaman asimi belirliyoruz.!!
+	timeout1 := time.After(3 * time.Second)
+	timeout2 := time.After(5 * time.Second)
+
+	for {
+		select {
+		case msg := <-ch1:
+			fmt.Println(msg)
+			ch1 = nil // kanal islenince artik dinlenmeyecek
+			timeout1 = nil
+
+		case <-timeout1:
+			fmt.Println("kanal 1 zaman asimina ugradi")
+			ch1 = nil
+			timeout1 = nil
+
+		case msg := <-ch2:
+			fmt.Println(msg)
+			ch2 = nil
+			timeout2 = nil
+
+		case <-timeout2:
+			fmt.Println("Kanal 2 zaman asimina ugradi")
+			ch2 = nil
+			timeout2 = nil
+
+		}
+		if ch1 == nil && ch2 == nil {
+			break
+		}
+	}
+	fmt.Println("Tum isler tamamlandi")
 }
