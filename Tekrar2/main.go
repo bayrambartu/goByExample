@@ -1,39 +1,47 @@
 package main
 
-import (
-	"fmt"
-	"sync"
-)
+import "fmt"
 
+/*
 var mt sync.Mutex
 
-func paraCek(bakiye *float64, cekilecekMiktar float64, wg *sync.WaitGroup) {
-	mt.Lock()
+	func paraCek(bakiye *float64, cekilecekMiktar float64, wg *sync.WaitGroup) {
+		mt.Lock()
 
-	*bakiye -= 15
-	fmt.Printf("Yeni Bakiye: %.2f\n", *bakiye)
-	mt.Unlock()
-	fmt.Println("çekme işlemi tamamlandı")
-	wg.Done()
-}
-func paraYatir(bakiye *float64, yatirılacakMiktar float64, wg *sync.WaitGroup) {
-	mt.Lock()
-	*bakiye += 65
-	fmt.Printf("Yeni Bakiye: %.2f\n", *bakiye)
-	mt.Unlock()
-	fmt.Println("Yatırma işlemi tamamlandı.")
-	wg.Done()
+		*bakiye -= 15
+		fmt.Printf("Yeni Bakiye: %.2f\n", *bakiye)
+		mt.Unlock()
+		fmt.Println("çekme işlemi tamamlandı")
+		wg.Done()
+	}
+
+	func paraYatir(bakiye *float64, yatirılacakMiktar float64, wg *sync.WaitGroup) {
+		mt.Lock()
+		*bakiye += 65
+		fmt.Printf("Yeni Bakiye: %.2f\n", *bakiye)
+		mt.Unlock()
+		fmt.Println("Yatırma işlemi tamamlandı.")
+		wg.Done()
+	}
+*/
+type Request struct {
+	Action  string
+	Key     string
+	Value   int
+	ReplyCh chan interface{}
 }
 
 func main() {
-	var wg sync.WaitGroup
-	wg.Add(2)
-	var bakiye float64 = 100
-	fmt.Printf("İlk Bakiye: %.2f\n", bakiye)
+	/*
+		var wg sync.WaitGroup
+		wg.Add(2)
+		var bakiye float64 = 100
+		fmt.Printf("İlk Bakiye: %.2f\n", bakiye)
 
-	go paraCek(&bakiye, 25, &wg)
-	go paraYatir(&bakiye, 65, &wg)
-	wg.Wait()
+		go paraCek(&bakiye, 25, &wg)
+		go paraYatir(&bakiye, 65, &wg)
+		wg.Wait()*/
+
 	/*
 		var mu sync.Mutex
 		data := make(map[string]int)
@@ -94,4 +102,44 @@ func main() {
 
 	*/
 
+	// kanal tabanlı Map yönetimi
+	data := make(map[string]int)
+	requests := make(chan Request)
+
+	go func() {
+		for req := range requests {
+			switch req.Action {
+			case "set":
+				data[req.Key] = req.Value
+				fmt.Printf("Set: %s -> %d\n", req.Key, req.Value)
+				req.ReplyCh <- "success"
+			case "get":
+				value, exists := data[req.Key]
+				if exists {
+					req.ReplyCh <- value
+				} else {
+					req.ReplyCh <- "not found"
+				}
+			case "delete":
+				delete(data, req.Key)
+				fmt.Printf("Deleted: %s\n", req.Key)
+				req.ReplyCh <- "deleted"
+			}
+		}
+	}()
+
+	replyCh := make(chan interface{})
+	requests <- Request{Action: "set", Key: "a", Value: 42, ReplyCh: replyCh}
+	fmt.Println(<-replyCh)
+
+	requests <- Request{Action: "get", Key: "a", ReplyCh: replyCh}
+	fmt.Println("Value of a:", <-replyCh)
+
+	requests <- Request{Action: "delete", Key: "a", ReplyCh: replyCh}
+	fmt.Println(<-replyCh)
+
+	requests <- Request{Action: "get", Key: "a", ReplyCh: replyCh}
+	fmt.Println("Value of a:", <-replyCh)
+
+	close(requests)
 }
