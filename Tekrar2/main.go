@@ -24,6 +24,7 @@ var mt sync.Mutex
 		wg.Done()
 	}
 */
+
 type Request struct {
 	Action  string
 	Key     string
@@ -31,7 +32,36 @@ type Request struct {
 	ReplyCh chan interface{}
 }
 
+/*
+type WriteRequest struct {
+	Key   string
+	Value int
+}*/
+
 func main() {
+	/*
+		data := make(map[string]int)
+		writeRequest := make(chan WriteRequest)
+		done := make(chan bool)
+
+		// Map yönetimi
+		go func() {
+			for req := range writeRequest {
+				data[req.Key] = req.Value
+				fmt.Printf("Set %s -> %d\n", req.Key, req.Value)
+			}
+			done <- true
+		}()
+
+		// Yazma işlemleri
+		writeRequest <- WriteRequest{Key: "a", Value: 10}
+		writeRequest <- WriteRequest{Key: "b", Value: 20}
+
+		close(writeRequest)
+		<-done
+		fmt.Println("Final Map State", data)
+
+	*/
 	/*
 		var wg sync.WaitGroup
 		wg.Add(2)
@@ -126,6 +156,7 @@ func main() {
 				req.ReplyCh <- "deleted"
 			}
 		}
+
 	}()
 
 	replyCh := make(chan interface{})
@@ -142,4 +173,38 @@ func main() {
 	fmt.Println("Value of a:", <-replyCh)
 
 	close(requests)
+
+	/*
+		data := make(map[string]int)
+		data["a"] = 10
+		data["b"] = 20
+
+		// veri okuma
+		fmt.Println("Value of a:", data["a"])
+
+		// veri silme
+		delete(data, "a")
+		fmt.Println("Value of a after deletion:", data["a"])
+	*/
+
+	/*
+		data := make(map[string]int)
+		done := make(chan bool)
+
+		go func() {
+			data["a"] = 10
+			data["b"] = 20
+			fmt.Println("Veriler eklendi:", data)
+
+			// map'ten veri silme
+			delete(data, "a")
+			fmt.Println("Value of a after deletion:", data["a"])
+
+			done <- true
+
+		}()
+
+		<-done // işlemler tamamlanana kadar bekle
+		fmt.Println("tüm işlemler tamamlandı") */
+
 }
