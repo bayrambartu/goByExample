@@ -17,17 +17,44 @@ func main() {
 	*/
 	// Rate limiter ile sıra yönetimi
 
-	requests := make(chan int, 5) // 5 işlem için tampon kanal
-	for i := 1; i <= 5; i++ {
+	/*
+		requests := make(chan int, 5) // 5 işlem için tampon kanal
+		for i := 1; i <= 5; i++ {
+			requests <- i
+
+		}
+		close(requests)
+		limiter := time.Tick(1 * time.Second)
+
+		for req := range requests {
+			<-limiter
+			fmt.Println("işlem %d gerçekleşti \n", req)
+
+		} */
+
+	// Patlama (Burst) Limitleri
+
+	requests := make(chan int, 10)
+	for i := 1; i <= 10; i++ {
 		requests <- i
 
 	}
 	close(requests)
-	limiter := time.Tick(200 * time.Millisecond)
+	limiter := make(chan time.Time, 3) // Burst limit : 3 işlem birden yapılabilir.
 
+	for i := 0; i < 3; i++ {
+		limiter <- time.Now()
+	}
+	go func() {
+		for t := range time.Tick(1 * time.Second) {
+			limiter <- t
+		}
+	}()
+
+	// işlemlerin sırayla yapılmasına izin ver ..:
 	for req := range requests {
 		<-limiter
-		fmt.Println("işlem %d gerçekleşti \n", req)
-
+		fmt.Printf("işlem %d gerçekleşti \n", req)
 	}
+
 }
