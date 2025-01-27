@@ -34,27 +34,54 @@ func main() {
 
 	// Patlama (Burst) Limitleri
 
-	requests := make(chan int, 10)
-	for i := 1; i <= 10; i++ {
-		requests <- i
+	/*
+		requests := make(chan int, 10)
+		for i := 1; i <= 10; i++ {
+			requests <- i
 
+		}
+		close(requests)
+		limiter := make(chan time.Time, 3) // Burst limit : 3 işlem birden yapılabilir.
+
+		for i := 0; i < 3; i++ {
+			limiter <- time.Now()
+		}
+		go func() {
+			for t := range time.Tick(1 * time.Second) {
+				limiter <- t
+			}
+		}()
+
+		// işlemlerin sırayla yapılmasına izin ver ..:
+		for req := range requests {
+			<-limiter
+			fmt.Printf("işlem %d gerçekleşti \n", req)
+		}
+	*/
+
+	// Patlama Limiti ve Sıralı Yönetim
+
+	requests := make(chan int, 15)
+
+	for i := 1; i <= 15; i++ {
+		requests <- i
 	}
 	close(requests)
-	limiter := make(chan time.Time, 3) // Burst limit : 3 işlem birden yapılabilir.
 
-	for i := 0; i < 3; i++ {
+	limiter := make(chan time.Time, 5)
+
+	for i := 0; i < 5; i++ {
 		limiter <- time.Now()
 	}
+
 	go func() {
-		for t := range time.Tick(1 * time.Second) {
+		for t := range time.Tick(time.Second * 2) {
 			limiter <- t
 		}
 	}()
 
-	// işlemlerin sırayla yapılmasına izin ver ..:
 	for req := range requests {
-		<-limiter
-		fmt.Printf("işlem %d gerçekleşti \n", req)
+		<-limiter // tampondan işlem izni al
+		fmt.Printf("İşlem %d gerçekleşti \n", req)
 	}
-
 }
