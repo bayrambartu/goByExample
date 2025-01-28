@@ -89,32 +89,63 @@ func main() {
 			fmt.Printf("İşlem %d gerçekleşti \n", req)
 		}
 	*/
+	/*
+		apiRequest := make(chan int, 20)
 
-	apiRequest := make(chan int, 20)
+		for i := 1; i <= 20; i++ {
+			apiRequest <- i
+
+		}
+		close(apiRequest)
+
+		// Burst Limit.
+		limiter := make(chan time.Time, 5)
+
+		// tampon için doldurma....
+		for i := 0; i < 5; i++ {
+			limiter <- time.Now()
+		}
+
+		// her 2 saniyede bir yeni işlem izni ekle
+		go func() {
+			for t := range time.Tick(2 * time.Second) {
+				limiter <- t
+			}
+		}()
+
+		for req := range apiRequest {
+			<-limiter // işlem izni almak için bekle
+			fmt.Println("API isteği %d işlendi. Zaman %s \n", req, time.Now().Format("15:04:05"))
+		} */
+
+	// Dinamik Rate Limiter
+
+	requests := make(chan int, 20)
 
 	for i := 1; i <= 20; i++ {
-		apiRequest <- i
-
+		requests <- i
 	}
-	close(apiRequest)
+	close(requests)
 
-	// Burst Limit.
-	limiter := make(chan time.Time, 5)
+	//Rate limiti için dinamik zamanlayıcı
+	limiter := make(chan time.Time)
 
-	// tampon için doldurma....
-	for i := 0; i < 5; i++ {
-		limiter <- time.Now()
-	}
-
-	// her 2 saniyede bir yeni işlem izni ekle
+	// Dinamik olarak rate limiti değiştirme
 	go func() {
-		for t := range time.Tick(2 * time.Second) {
-			limiter <- t
+		rate := 1 * time.Second
+		for {
+			time.Sleep(rate)
+			limiter <- time.Now()
+
+			// Hızı dinamik şekilde artr
+			if rate > 500*time.Millisecond {
+				rate -= 100 * time.Millisecond
+			}
 		}
 	}()
 
-	for req := range apiRequest {
-		<-limiter // işlem izni almak için bekle
-		fmt.Println("API isteği %d işlendi. Zaman %s \n", req, time.Now().Format("15:04:05"))
+	for req := range requests {
+		<-limiter
+		fmt.Printf("işlem %d işlendi. Zaman : %s \n", req, time.Now().Format(" 15:04:05"))
 	}
 }
