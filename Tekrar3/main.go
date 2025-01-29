@@ -117,35 +117,75 @@ func main() {
 			<-limiter // işlem izni almak için bekle
 			fmt.Println("API isteği %d işlendi. Zaman %s \n", req, time.Now().Format("15:04:05"))
 		} */
+	/*
+		// Dinamik Rate Limiter
 
-	// Dinamik Rate Limiter
+		requests := make(chan int, 20)
 
-	requests := make(chan int, 20)
+		for i := 1; i <= 20; i++ {
+			requests <- i
+		}
+		close(requests)
 
-	for i := 1; i <= 20; i++ {
+		//Rate limiti için dinamik zamanlayıcı
+		limiter := make(chan time.Time)
+
+
+			// Dinamik olarak rate limiti değiştirme
+			go func() {
+				rate := 1 * time.Second
+				for {
+					time.Sleep(rate)
+					limiter <- time.Now()
+
+					// Hızı dinamik şekilde artr
+					if rate > 500*time.Millisecond {
+						rate -= 100 * time.Millisecond
+					}
+				}
+			}()
+
+			for req := range requests {
+				<-limiter
+				fmt.Printf("işlem %d işlendi. Zaman : %s \n", req, time.Now().Format(" 15:04:05"))
+			}
+
+	*/
+	/*
+		requests := make(chan int, 10)
+
+		for i := 1; i <= 10; i++ {
+			requests <- i
+		}
+		close(requests)
+
+		limiter := time.Tick(1 * time.Second)
+
+		for req := range requests {
+			select {
+			case <-limiter:
+				fmt.Printf("İşlem %d işlendi. Zaman %s \n", req, time.Now().Format("15:04:05"))
+			case <-time.After(2 * time.Second):
+				fmt.Printf("işlem %d zaman aşımı.\n", req)
+			}
+		}
+	*/
+	requests := make(chan int, 10)
+
+	for i := 1; i <= 10; i++ {
 		requests <- i
 	}
 	close(requests)
 
-	//Rate limiti için dinamik zamanlayıcı
-	limiter := make(chan time.Time)
-
-	// Dinamik olarak rate limiti değiştirme
-	go func() {
-		rate := 1 * time.Second
-		for {
-			time.Sleep(rate)
-			limiter <- time.Now()
-
-			// Hızı dinamik şekilde artr
-			if rate > 500*time.Millisecond {
-				rate -= 100 * time.Millisecond
-			}
-		}
-	}()
+	limiter := time.Tick(3 * time.Second) // izin isteme süresi
 
 	for req := range requests {
-		<-limiter
-		fmt.Printf("işlem %d işlendi. Zaman : %s \n", req, time.Now().Format(" 15:04:05"))
+		select {
+		case <-limiter:
+			fmt.Printf("işlem %d işlendi.Zaman: %s \n", req, time.Now().Format("15:04:05"))
+
+		case <-time.After(2 * time.Second):
+			fmt.Printf("işlem %d zaman aşımı \n", req)
+		}
 	}
 }
