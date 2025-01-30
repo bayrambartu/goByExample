@@ -79,31 +79,24 @@ func main() {
 		}
 
 	*/
-	package main
 
-	import (
-		"fmt"
-	"time"
-	)
+	requests := make(chan int, 10)
 
-	func main() {
-		requests := make(chan int, 10)
+	// 10 işlem ekleyelim
+	for i := 1; i <= 10; i++ {
+		requests <- i
+	}
+	close(requests)
 
-		// 10 işlem ekleyelim
-		for i := 1; i <= 10; i++ {
-			requests <- i
-		}
-		close(requests)
+	limiter := time.Tick(3 * time.Second)
 
-		limiter := time.Tick(3 * time.Second)
+	for req := range requests {
+		select {
+		case <-limiter: // İzin varsa işlemi gerçekleştir
+			fmt.Printf("İşlem %d yapıldı. Zaman: %s\n", req, time.Now().Format("15:04:05"))
+		case <-time.After(2 * time.Second): // 2 saniye içinde işlem yapılmazsa zaman aşımı
+			fmt.Printf("İşlem %d zaman aşımına uğradı!\n", req)
 
-		for req := range requests {
-			select {
-			case <-limiter: // İzin varsa işlemi gerçekleştir
-				fmt.Printf("İşlem %d yapıldı. Zaman: %s\n", req, time.Now().Format("15:04:05"))
-			case <-time.After(2 * time.Second): // 2 saniye içinde işlem yapılmazsa zaman aşımı
-				fmt.Printf("İşlem %d zaman aşımına uğradı!\n", req)
-			}
 		}
 	}
 }
