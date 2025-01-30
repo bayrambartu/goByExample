@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"time"
+)
+
 func main() {
 
 	/*
@@ -50,5 +55,26 @@ func main() {
 		}
 
 	*/
+	requests := make(chan int, 10)
+	for i := 1; i <= 10; i++ {
+		requests <- i
+	}
+	close(requests)
 
+	limiter := make(chan time.Time, 3)
+
+	for i := 0; i < 3; i++ {
+		limiter <- time.Now()
+	}
+
+	go func() {
+		for t := range time.Tick(1 * time.Second) {
+			limiter <- t
+		}
+
+	}()
+	for req := range requests {
+		<-limiter
+		fmt.Printf("request: %d , time : %s \n", req, time.Now().Format("2006-01-02 15:04:05"))
+	}
 }
