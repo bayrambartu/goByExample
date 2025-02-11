@@ -1,15 +1,28 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
-func bolme(a, b int) int {
-	if b == 0 {
-		panic("sifira bolme hatasi")
+/*
+	func bolme(a, b int) int {
+		if b == 0 {
+			panic("sifira bolme hatasi")
+		}
+		return a / b
 	}
-	return a / b
-}
+*/
 func main() {
-	fmt.Println(bolme(10, 0))
+	/*
+		fmt.Println(bolme(10, 2))
+		fmt.Println(bolme(10, 0))*/
+
+	_, err := os.Create("/root/test.txt")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Dosya olusturuldu")
 	/*
 
 		panic("a problem")
