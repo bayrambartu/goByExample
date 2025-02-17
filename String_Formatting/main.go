@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 /*
 type point struct {
@@ -47,14 +50,24 @@ func main() {
 		fmt.Printf("Pointer: %p\n", &num)
 		fmt.Printf("pointer:%p\n", &x)
 	*/
+	/*
+		// Width & Precision
 
-	// Width & Precision
+		fmt.Printf("Saga hizala: %6d %6d\n", 12, 345)
+		fmt.Printf("Float (2 ondalık): |%6.2f|%6.2f|\n", 1.2, 3.45)
+		fmt.Printf("Sol hizali: |%-6.2f|%-6.2f|\n", 1.2, 3.45)
+		fmt.Printf("Metin saga hizali:|%6s|%6s|\n", "foo", "b")
+		fmt.Printf("Metin sola hizali:|%-6s|%-6s|\n", "foo", "b")
 
-	fmt.Printf("Saga hizala: %6d %6d\n", 12, 345)
-	fmt.Printf("Float (2 ondalık): |%6.2f|%6.2f|\n", 1.2, 3.45)
-	fmt.Printf("Sol hizali: |%-6.2f|%-6.2f|\n", 1.2, 3.45)
-	fmt.Printf("Metin saga hizali:|%6s|%6s|\n", "foo", "b")
-	fmt.Printf("Metin sola hizali:|%-6s|%-6s|\n", "foo", "b")
+		fmt.Printf("6 karakterlik alan, saga kaydir.: %6s %6s", "good", "luck")
+	*/
 
-	fmt.Printf("6 karakterlik alan, saga kaydir.: %6s %6s", "good", "luck")
+	// Sprintf & Fprintf
+	// fmt.Sprintf() -> string döndürür, yazdirmaz
+	// fmt.Fprintf() -> Veriyi os.Stderr veya dosyaya yazdirir.
+
+	s := fmt.Sprintf("Bu bir %s", "string")
+	fmt.Println(s)
+
+	fmt.Fprintf(os.Stderr, "Error message: %s\n", "Disk is full.")
 }
