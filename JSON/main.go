@@ -118,4 +118,12 @@ func main() {
 	res1 := response1{}
 	dec.Decode(&res1)
 	fmt.Println(res1)
+
+	// Decode
+	jsonStr := `{"page":1, "fruits": "apple"}`
+	decc := json.NewDecoder(strings.NewReader(jsonStr))
+
+	var user map[string]interface{}
+	decc.Decode(&user)
+	fmt.Println(user["fruits"])
 }
